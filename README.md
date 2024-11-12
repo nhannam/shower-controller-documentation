@@ -80,6 +80,11 @@ TBC: Looks like 'update' and 'request' commandTypeId for a given property are 12
 |OperateOutlets|0x87|5|[ timerState, 0x01, targetTemperature, outletState1, outletState2 ]|ControlsOperated|
 |RequestOutletSettings|0x0f or 0x10 depending on outlet|0|No payload|OutletSettings|
 |UpdateOutletSettings\*|0x8f ot 0x90 depending on outlet|11|[ outletIdentifier, outletIdentifier, 0x08, 0x64, maximumDuration, 0x01, maximumTemperature, 0x01, 0x2c, 0x01, successfulUpdateCommandCounter ]|SuccessOrFailure|
+|RestartDevice\*|0xf4|1|[ 0x01 ]|SuccessOrFailure|
+|RequestTechnicalInformation|0x32|1|[ 0x01 ]|TechnicalInformation|
+|UnknownRequestTechnicalInformation|0x41|0|No payload|UnknownTechnicalInformation|
+|UnknownRequestTechnicalInformation2|0x40|1|[ 0x01 ]|[ 0x00 re[eated 18 times ]|
+|UnknownRequestRequest|0x40|0|No payload|[ TBC, TBC, TBC, TBC ]|
 
 \* NOTE: Many of the update type commands will fail while the timer is running (i.e. a non-zero timerState), and also for 5 seconds afterwards.  The official application tends to use a popup warning and stops the device outlets before executing these commands.
 
@@ -109,6 +114,8 @@ There is nothing in the notification to indicate which command type triggered it
 |Nickname|16|[ deviceNickname ]|
 |ClientDetails\*|20|[ clientName ]|
 |PresetDetails|24|[ presetSlot, TBC, targetTemperature, TBC, durationSeconds, TBC, TBC, TBC, [ presetName ] ]|
+|TechnicalInformation|16|[ 0x00, valveType, 0x00, valveSoftwareVersion, 0x00, uiType, 0x00, uiSoftwareVersion, 0x00, 0x00, 0x00, 0x00, 0x00, TBC, 0x00, bluetoothSoftwareVersion ]|
+|UnknownTechnicalInformation|4|[ TBC, TBC, TBC, TBC ]
 
 \* NOTE: The ClientDetails notification does not include information about which clientSlot the name relates to.  It appears that an application needs to link the notification to the command it sent that requested details for a specific clientSlot. 
 
