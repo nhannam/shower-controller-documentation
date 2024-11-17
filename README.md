@@ -80,8 +80,9 @@ TBC: Looks like 'update' and 'request' commandTypeId for a given property are 12
 |StartPreset|0xb1|1|[ presetSlot ]|ControlsOperated|
 |OperateOutlets|0x87|5|[ timerState, 0x01, targetTemperature, outletState1, outletState2 ]|ControlsOperated|
 |RequestOutletSettings|0x0f or 0x10 depending on outlet|0|No payload|OutletSettings|
-|UpdateOutletSettings\*|0x8f ot 0x90 depending on outlet|11|[ outletIdentifier, outletIdentifier, 0x08, 0x64, maximumDuration, 0x01, maximumTemperature, 0x01, 0x2c, 0x01, successfulUpdateCommandCounter ]|SuccessOrFailure|
+|UpdateOutletSettings\*|0x8f ot 0x90 depending on outlet|11|[ outletFlag, outletFlag, 0x08, 0x64, maximumDuration, 0x01, maximumTemperature, 0x01, minimumTemperature, 0x01, successfulUpdateCommandCounter ]|SuccessOrFailure|
 |RestartDevice\*|0xf4|1|[ 0x01 ]|SuccessOrFailure|
+|FactoryResetDevice\*|0xf4|1|[ 0x02 ]|SuccessOrFailure|
 |RequestTechnicalInformation|0x32|1|[ 0x01 ]|TechnicalInformation|
 |UnknownRequestTechnicalInformation|0x41|0|No payload|UnknownTechnicalInformation|
 |UnknownRequestTechnicalInformation2|0x40|1|[ 0x01 ]|[ 0x00 re[eated 18 times ]|
@@ -111,7 +112,7 @@ There is nothing in the notification to indicate which command type triggered it
 |DeviceSettings|4|[ TBC, wirelessRemoteButtonSettingBits, defaultPresetSlot, controllerSettingBits ]|
 |DeviceState|10|[ timerState, TBC, targetTemperature, TBC, actualTemperature, outletState1, outletState2, secondsRemainingPart1, secondsRemainingPart2, successfulUpdateCommandCounter ]|
 |ControlsOperated|11|[ 0x01 (command made a change) or 0x80 (e.g. no change because controls already stopped), timerState, TBC, targetTemperature, TBC, actualTemperature, outletState1, outletState2, secondsRemainingPart1, secondsRemainingPart2, successfulUpdateCommandCounter ]|
-|OutletSettings|11|[ outletIdentifier, TBC, TBC, TBC, minimumDurationSeconds, TBC, maximumTemperature, TBC, TBC, TBC, TBC, successfulUpdateCommandCounter ]|
+|OutletSettings|11|[ outletFlag, TBC, TBC, TBC, minimumDurationSeconds, TBC, maximumTemperature, TBC, minimumTemperature, TBC, TBC, successfulUpdateCommandCounter ]|
 |Nickname|16|[ deviceNickname ]|
 |ClientDetails\*|20|[ clientName ]|
 |PresetDetails|24|[ presetSlot, TBC, targetTemperature, TBC, durationSeconds, TBC, TBC, TBC, [ presetName ] ]|
@@ -128,12 +129,12 @@ There is nothing in the notification to indicate which command type triggered it
 |clientId|4|4 (random?) bytes chosen by the client and registered with the device during pairing.  Subsequently used for generating CRC so the device can validate that requests came from the registeered client| 
 |controllerSettingBits|1|bitmask (???????1=swapped top button outlet, ??????1?=standby lighting off)|
 |wirelessRemoteSettingBits|1|bitmask (???????1=outlet1 enabled, ??????1?=outlet2 enabled)|
-|targetTemperature, actualTemperature, maximumTemperature|1|celcius = (256 + payloadByte) / 10|
+|targetTemperature, actualTemperature, minimumTemperature, maximumTemperature|1|celcius = (256 + payloadByte) / 10|
 |duration, maximumDuration|1|seconds = payloadByte \* 10|
 |secondsRemaining|2|seconds = a 16 bit unsigned integer split across 2 bytes.  First byte are the most significant bits|
 |timerState|1|0x00 = timer stopped, 0x01 = timer running, 0x03 = lockout timer running.  Must be set consistently with the outlets - i.e. timer cannot be set to stopped when one of the outlets is on.  The lockout timer appears to run for 5 minutes after the shower is turned off by the physical controls.  May be a safety thing to prevent changes in case someone is still in the shower and just turns it back on|
 |outletState|1|0x64 = running.  0x00 = not running|
-|outletIdentifier|1|0x00 for first outlet, 0x04 for second outlet|
+|outletFlag|1|TBC!!! Have seen:  0x00 for first outlet, 0x04 for second outlet, 0x08 for second outlet after factory reset|
 |successfulUpdateCommandCounter|1|Appears to cycle between 0x09 and 0x0f incrementing by one after each sucessfull command unless following an UpdateOutletSettings command where the value from the command is reflected in the resulting notification|
 |deviceNickname|16|Nickname of device in utf-8 bytes, padded with trailing 0x00 to 16 bytes|
 |clientName|20|Name of the client application in utf-8 bytes padded with trailing 0x00 to 20 bytes|
