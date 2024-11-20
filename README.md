@@ -70,12 +70,12 @@ TBC: Looks like 'update' and 'request' commandTypeId for a given property are 12
 |UpdateNickname\*|0xc4|16|[ deviceNickname ]|SuccessOrFailure|
 |RequestDeviceState|0x07|0|No payload|DeviceState|
 |RequestDeviceSettings|0x3e|0|No payload|DeviceSettings|
-|UpdateWirelessRemoteButtonSettings\*|0xbe|2|[ 0x01, wirelessRemoteButtonSettingBits ]|SuccessOrFailure|
+|UpdateWirelessRemoteButtonSettings\*|0xbe|2|[ 0x01, outletsEnabledBits ]|SuccessOrFailure|
 |UpdateDefaultPresetSlot\*|0xbe|2|[ 0x02, presetSlot ]|SuccessOrFailure|
 |UpdateControllerSettings\*|0xbe|2|[ 0x03, controllerSettingBits ]|SuccessOrFailure|
 |RequestPresetSlots|0x30|1|[ 0x80 ]|Slots|
 |RequestPresetDetails|0x30|1| [ 0x40 + presetSlot ] |PresetDetails|
-|UpdatePresetDetails\*|0xb0|24|[ presetSlot, 0x01, targetTemperature, 0x64, duration, 0x02, 0x00, 0x00, [ presetName ] ]|SuccessOrFailure|
+|UpdatePresetDetails\*|0xb0|24|[ presetSlot, 0x01, targetTemperature, 0x64, duration, outletsEnabledBits, 0x00, 0x00, [ presetName ] ]|SuccessOrFailure|
 |DeletePresetDetails\*|0xb0|24|[ presetSlot, 0x01, [ 22 bytes of 0x00 ] ]|SuccessOrFailure|
 |StartPreset|0xb1|1|[ presetSlot ]|ControlsOperated|
 |OperateOutlets|0x87|5|[ timerState, 0x01, targetTemperature, outletState1, outletState2 ]|ControlsOperated|
@@ -109,13 +109,13 @@ There is nothing in the notification to indicate which command type triggered it
 |--|--|--|
 |SuccessOrFailure|1|[ varies.  0x80 for failure, clientSlot for pairing success, 0x01 for other success]|
 |Slots|2|[ Each bit set indicates an occupied slot.  The slot type (preset or client) depends on the command that triggered the notification ]|
-|DeviceSettings|4|[ TBC, wirelessRemoteButtonSettingBits, defaultPresetSlot, controllerSettingBits ]|
+|DeviceSettings|4|[ TBC, outletsEnabledBits, defaultPresetSlot, controllerSettingBits ]|
 |DeviceState|10|[ timerState, TBC, targetTemperature, TBC, actualTemperature, outletState1, outletState2, secondsRemainingPart1, secondsRemainingPart2, successfulUpdateCommandCounter ]|
 |ControlsOperated|11|[ 0x01 (command made a change) or 0x80 (e.g. no change because controls already stopped), timerState, TBC, targetTemperature, TBC, actualTemperature, outletState1, outletState2, secondsRemainingPart1, secondsRemainingPart2, successfulUpdateCommandCounter ]|
 |OutletSettings|11|[ outletFlag, TBC, TBC, TBC, minimumDurationSeconds, TBC, maximumTemperature, TBC, minimumTemperature, TBC, TBC, successfulUpdateCommandCounter ]|
 |Nickname|16|[ deviceNickname ]|
 |ClientDetails\*|20|[ clientName ]|
-|PresetDetails|24|[ presetSlot, TBC, targetTemperature, TBC, durationSeconds, TBC, TBC, TBC, [ presetName ] ]|
+|PresetDetails|24|[ presetSlot, TBC, targetTemperature, TBC, durationSeconds, outletsEnabledBits, TBC, TBC, [ presetName ] ]|
 |TechnicalInformation|16|[ 0x00, valveType, 0x00, valveSoftwareVersion, 0x00, uiType, 0x00, uiSoftwareVersion, 0x00, 0x00, 0x00, 0x00, 0x00, TBC, 0x00, bluetoothSoftwareVersion ]|
 |UnknownTechnicalInformation|4|[ TBC, TBC, TBC, TBC ]
 
@@ -128,7 +128,7 @@ There is nothing in the notification to indicate which command type triggered it
 |--|--|--|
 |clientId|4|4 (random?) bytes chosen by the client and registered with the device during pairing.  Subsequently used for generating CRC so the device can validate that requests came from the registeered client| 
 |controllerSettingBits|1|bitmask (???????1=swapped top button outlet, ??????1?=standby lighting off)|
-|wirelessRemoteSettingBits|1|bitmask (???????1=outlet1 enabled, ??????1?=outlet2 enabled)|
+|outletsEnabledBits|1|bitmask (???????1=outlet1 enabled, ??????1?=outlet2 enabled)|
 |targetTemperature, actualTemperature, minimumTemperature, maximumTemperature|1|celcius = (256 + payloadByte) / 10|
 |duration, maximumDuration|1|seconds = payloadByte \* 10|
 |secondsRemaining|2|seconds = a 16 bit unsigned integer split across 2 bytes.  First byte are the most significant bits|
