@@ -5,7 +5,7 @@ A responsive application for controlling my Mira Mode shower.
 # Bluetooth Protocol
 This file documents my current understanding of the bluetooth messages passed between the client application and the shower device.  This information has been reverse engineered by sniffing bluetooth data and experimenting.
 
-I would also like to give credit to [python-miramode](https://github.com/alexpilotti/python-miramode) which acted as a starting point for my investigations.
+I would also like to give credit to [python-miramode](https://github.com/alexpilotti/python-miramode) which acted as a starting point for my investigations back in 2022.
 
 ## Device Information Service
 The standard device information service can be queried for information below using either 16 bit or 128 bit UUIDs.
@@ -112,7 +112,7 @@ There is nothing in the notification to indicate which command type triggered it
 |DeviceSettings|4|[ TBC, outletsEnabledBits, defaultPresetSlot, controllerSettingBits ]|
 |DeviceState|10|[ timerState, TBC, targetTemperature, TBC, actualTemperature, outletState1, outletState2, secondsRemainingPart1, secondsRemainingPart2, successfulUpdateCommandCounter ]|
 |ControlsOperated|11|[ 0x01 (command made a change) or 0x80 (e.g. no change because controls already stopped), timerState, TBC, targetTemperature, TBC, actualTemperature, outletState1, outletState2, secondsRemainingPart1, secondsRemainingPart2, successfulUpdateCommandCounter ]|
-|OutletSettings|11|[ outletFlag, TBC, TBC, TBC, minimumDurationSeconds, TBC, maximumTemperature, TBC, minimumTemperature, TBC, TBC, successfulUpdateCommandCounter ]|
+|OutletSettings|11|[ outletFlag, TBC, TBC, TBC, minimumDurationSeconds, TBC, maximumTemperature, TBC, minimumTemperature, TBC, successfulUpdateCommandCounter ]|
 |Nickname|16|[ deviceNickname ]|
 |ClientDetails\*|20|[ clientName ]|
 |PresetDetails|24|[ presetSlot, TBC, targetTemperature, TBC, durationSeconds, outletsEnabledBits, TBC, TBC, [ presetName ] ]|
