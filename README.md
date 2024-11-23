@@ -1,6 +1,9 @@
 # Shower Controller
 A responsive application for controlling my Mira Mode shower.
 
+## ScreenCapture
+[![Watch the video]()](https://www.youtube.com/watch?v=JSUfV3fGcvw)
+
 
 # Bluetooth Protocol
 This file documents my current understanding of the bluetooth messages passed between the client application and the shower device.  This information has been reverse engineered by sniffing bluetooth data and experimenting.
