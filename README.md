@@ -83,7 +83,7 @@ TBC: Looks like 'update' and 'request' commandTypeId for a given property are 12
 |StartPreset|0xb1|1|[ presetSlot ]|ControlsOperated|
 |OperateOutlets|0x87|5|[ runningState, [ targetTemperature ], outletState1, outletState2 ]|ControlsOperated|
 |RequestOutletSettings|0x0f or 0x10 depending on outlet|0|No payload|OutletSettings|
-|UpdateOutletSettings\*|0x8f ot 0x90 depending on outlet|11|[ outletFlag, outletFlag, 0x08, 0x64, maximumDuration, [ maximumTemperature ], [ minimumTemperature ], 0x01, successfulUpdateCommandCounter ]|SuccessOrFailure|
+|UpdateOutletSettings\*|0x8f ot 0x90 depending on outlet|11|[ outletFlag, outletFlag, 0x08, 0x64, maximumDuration, [ maximumTemperature ], [ minimumTemperature ], [ minMaxTemperatureLimit ] ]|SuccessOrFailure|
 |RestartDevice\*|0xf4|1|[ 0x01 ]|SuccessOrFailure|
 |FactoryResetDevice\*|0xf4|1|[ 0x02 ]|SuccessOrFailure|
 |RequestTechnicalInformation|0x32|1|[ 0x01 ]|TechnicalInformation|
@@ -115,7 +115,7 @@ There is nothing in the notification to indicate which command type triggered it
 |DeviceSettings|4|[ TBC, wirelessRemoteButtobnOutletsEnabledBits, defaultPresetSlot, controllerSettingBits ]|
 |DeviceState|10|[ runningState, [ targetTemperature ], [ actualTemperature ], outletState1, outletState2, [ secondsRemainingPart ], successfulUpdateCommandCounter ]|
 |ControlsOperated|11|[ 0x01 (command made a change) or 0x80 (e.g. no change because controls already stopped), runningState, [ targetTemperature ], [ actualTemperature ], outletState1, outletState2, [ secondsRemainingPart ], successfulUpdateCommandCounter ]|
-|OutletSettings|11|[ outletFlag, TBC, TBC, TBC, minimumDurationSeconds, [ maximumTemperature ], [ minimumTemperature ], TBC, successfulUpdateCommandCounter ]|
+|OutletSettings|11|[ outletFlag, TBC, TBC, TBC, minimumDurationSeconds, [ maximumTemperature ], [ minimumTemperature ], [ minMaxTemperatureLimit ] ]|
 |Nickname|16|[ deviceNickname ]|
 |ClientDetails\*|20|[ clientName ]|
 |PresetDetails|24|[ presetSlot, [ targetTemperature ], TBC, durationSeconds, outletsEnabledBits, TBC, TBC, [ presetName ] ]|
@@ -132,13 +132,14 @@ There is nothing in the notification to indicate which command type triggered it
 |clientId|4|4 (random?) bytes chosen by the client and registered with the device during pairing.  Subsequently used for generating CRC so the device can validate that requests came from the registeered client| 
 |controllerSettingBits|1|bitmask (???????1=swapped top button outlet, ??????1?=standby lighting off)|
 |wirelessRemoteButtobnOutletsEnabledBits, outletsEnabledBits|1|bitmask (???????1=outlet1 enabled, ??????1?=outlet2 enabled)|
-|targetTemperature, actualTemperature, minimumTemperature, maximumTemperature|1|celcius = (2 byte big endian integer) / 10|
+|targetTemperature, actualTemperature, minimumTemperature, maximumTemperature|2|celcius = (2 byte big endian integer) / 10|
+|minMaxTemperatureLimit|2|same as other temperatures.  The minimumTemperature must be <= to this limit and the maximumTemperature must be >= this limit.  The limit can be changed at the same time ae the min and max temps, but it must lie within the overall permitted range.  Unclear what purpose it is intended to serve - maybe to prevent accidently setting the min temp to a high value.|
 |duration, maximumDuration|1|seconds = payloadByte \* 10|
 |secondsRemaining|2|seconds = 2 byte big endian integer|
 |runningState|1|0x00 = stopped (there is a 5 second device lockout where no update commands will be accepted after the runningState transitions to stopped), 0x01 = running, 0x03 = paused (the device will remain in this state for 5 minutes before automatically transitioning to stopped), 0x05 = cold/minimum (have only seen this by turning the manual controls to minimum - water continues to flow).  Must be set consistently with the outlets - i.e. cannot be set to stopped when one of the outlets is on.  When the water stops at the end of a preset, or when stopped by controls the state transitions from running to paused - this may be a safety thing to reduce risk of changes in case someone is still in the shower and just turns it back on.|
 |outletState|1|0x64 = running.  0x00 = not running (it's possible this is a percentage - the mode products are just on/off, but some other products have adjustable flow control.  any non-zero value seems to turn the mode outlet on)|
 |outletFlag|1|TBC!!! Have seen:  0x00 for first outlet, 0x04 for second outlet, 0x08 for second outlet after factory reset|
-|successfulUpdateCommandCounter|1|Appears to cycle between 0x09 and 0x0f incrementing by one after each sucessfull command unless following an UpdateOutletSettings command where the value from the command is reflected in the resulting notification|
+|successfulUpdateCommandCounter|1|Appears to cycle between 0x09 and 0x0f incrementing by one after each sucessfull command|
 |deviceNickname|16|Nickname of device in utf-8 bytes, padded with trailing 0x00 to 16 bytes|
 |clientName|20|Name of the client application in utf-8 bytes padded with trailing 0x00 to 20 bytes|
 |presetName|16|Name of the preset in utf-8 bytes, padded with trailing 0x00 to 16 bytes|
