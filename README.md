@@ -78,12 +78,12 @@ TBC: Looks like 'update' and 'request' commandTypeId for a given property are 12
 |UpdateControllerSettings\*|0xbe|2|[ 0x03, controllerSettingBits ]|SuccessOrFailure|
 |RequestPresetSlots|0x30|1|[ 0x80 ]|Slots|
 |RequestPresetDetails|0x30|1| [ 0x40 + presetSlot ] |PresetDetails|
-|UpdatePresetDetails\*|0xb0|24|[ presetSlot, [ targetTemperature ], 0x64, duration, outletsEnabledBits, 0x00, 0x00, [ presetName ] ]|SuccessOrFailure|
+|UpdatePresetDetails\*|0xb0|24|[ presetSlot, [ targetTemperature ], flowRate, duration, outletsEnabledBits, 0x00, 0x00, [ presetName ] ]|SuccessOrFailure|
 |DeletePresetDetails\*|0xb0|24|[ presetSlot, 0x01, [ 22 bytes of 0x00 ] ]|SuccessOrFailure|
 |StartPreset|0xb1|1|[ presetSlot ]|ControlsOperated|
-|OperateOutlets|0x87|5|[ runningState, [ targetTemperature ], outletState1, outletState2 ]|ControlsOperated|
+|OperateOutlets|0x87|5|[ runningState, [ targetTemperature ], outlet1FlowRate, outlet2FlowRate ]|ControlsOperated|
 |RequestOutletSettings|0x0f or 0x10 depending on outlet|0|No payload|OutletSettings|
-|UpdateOutletSettings\*|0x8f ot 0x90 depending on outlet|11|[ outletFlag, outletFlag, 0x08, 0x64, maximumDuration, [ maximumTemperature ], [ minimumTemperature ], [ minMaxTemperatureLimit ] ]|SuccessOrFailure|
+|UpdateOutletSettings\*|0x8f ot 0x90 depending on outlet|11|[ outletFlag, outletFlag, 0x08, maximumFlowRate, maximumDuration, [ maximumTemperature ], [ minimumTemperature ], [ minMaxTemperatureLimit ] ]|SuccessOrFailure|
 |RestartDevice\*|0xf4|1|[ 0x01 ]|SuccessOrFailure|
 |FactoryResetDevice\*|0xf4|1|[ 0x02 ]|SuccessOrFailure|
 |RequestTechnicalInformation|0x32|1|[ 0x01 ]|TechnicalInformation|
@@ -113,8 +113,8 @@ There is nothing in the notification to indicate which command type triggered it
 |SuccessOrFailure|1|[ varies.  0x80 for failure, clientSlot for pairing success, 0x01 for other success]|
 |Slots|2|[ Each bit set indicates an occupied slot.  The slot type (preset or client) depends on the command that triggered the notification ]|
 |DeviceSettings|4|[ TBC, wirelessRemoteButtobnOutletsEnabledBits, defaultPresetSlot, controllerSettingBits ]|
-|DeviceState|10|[ runningState, [ targetTemperature ], [ actualTemperature ], outletState1, outletState2, [ secondsRemainingPart ], successfulUpdateCommandCounter ]|
-|ControlsOperated|11|[ 0x01 (command made a change) or 0x80 (e.g. no change because controls already stopped), runningState, [ targetTemperature ], [ actualTemperature ], outletState1, outletState2, [ secondsRemainingPart ], successfulUpdateCommandCounter ]|
+|DeviceState|10|[ runningState, [ targetTemperature ], [ actualTemperature ], outlet1FlowRate, outlet2FlowRate, [ secondsRemainingPart ], successfulUpdateCommandCounter ]|
+|ControlsOperated|11|[ 0x01 (command made a change) or 0x80 (e.g. no change because controls already stopped), runningState, [ targetTemperature ], [ actualTemperature ], outlet1FlowRate, outlet2FlowRate, [ secondsRemainingPart ], successfulUpdateCommandCounter ]|
 |OutletSettings|11|[ outletFlag, TBC, TBC, TBC, minimumDurationSeconds, [ maximumTemperature ], [ minimumTemperature ], [ minMaxTemperatureLimit ] ]|
 |Nickname|16|[ deviceNickname ]|
 |ClientDetails\*|20|[ clientName ]|
@@ -133,11 +133,11 @@ There is nothing in the notification to indicate which command type triggered it
 |controllerSettingBits|1|bitmask (???????1=swapped top button outlet, ??????1?=standby lighting off)|
 |wirelessRemoteButtobnOutletsEnabledBits, outletsEnabledBits|1|bitmask (???????1=outlet1 enabled, ??????1?=outlet2 enabled)|
 |targetTemperature, actualTemperature, minimumTemperature, maximumTemperature|2|celcius = (2 byte big endian integer) / 10|
-|minMaxTemperatureLimit|2|same as other temperatures.  The minimumTemperature must be <= to this limit and the maximumTemperature must be >= this limit.  The limit can be changed at the same time ae the min and max temps, but it must lie within the overall permitted range.  Unclear what purpose it is intended to serve - maybe to prevent accidently setting the min temp to a high value.|
+|minMaxTemperatureLimit|2|same as other temperatures.  The minimumTemperature must be <= to this limit and the maximumTemperature must be >= this limit.  The limit can be changed at the same time ae the min and max temps, but it must lie within the overall permitted range. Defaults to 0x7c (38C) unclear what purpose it is intended to serve - maybe to prevent accidently setting the min temp to a high value, but cold be related to the 'full cold' behaviour which the physical controls only seem to activate if the minimum temp is <=38C.|
 |duration, maximumDuration|1|seconds = payloadByte \* 10|
 |secondsRemaining|2|seconds = 2 byte big endian integer|
 |runningState|1|0x00 = stopped (there is a 5 second device lockout where no update commands will be accepted after the runningState transitions to stopped), 0x01 = running, 0x03 = paused (the device will remain in this state for 5 minutes before automatically transitioning to stopped), 0x05 = cold/minimum (have only seen this by turning the manual controls to minimum - water continues to flow).  Must be set consistently with the outlets - i.e. cannot be set to stopped when one of the outlets is on.  When the water stops at the end of a preset, or when stopped by controls the state transitions from running to paused - this may be a safety thing to reduce risk of changes in case someone is still in the shower and just turns it back on.|
-|outletState|1|0x64 = running.  0x00 = not running (it's possible this is a percentage - the mode products are just on/off, but some other products have adjustable flow control.  any non-zero value seems to turn the mode outlet on)|
+|flowRate, maximumFlowRate, outlet1FlowRate, outlet2FlowRate|1|0x64 = running.  0x00 = not running (I've documented this as flow rate, although it's not certain.  it's possible this is a percentage - the mode products are just on/off, but some other products have adjustable flow control.  any non-zero value seems to turn the mode outlet on)|
 |outletFlag|1|TBC!!! Have seen:  0x00 for first outlet, 0x04 for second outlet, 0x08 for second outlet after factory reset|
 |successfulUpdateCommandCounter|1|Appears to cycle between 0x09 and 0x0f incrementing by one after each sucessfull command|
 |deviceNickname|16|Nickname of device in utf-8 bytes, padded with trailing 0x00 to 16 bytes|
