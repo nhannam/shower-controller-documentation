@@ -10,6 +10,10 @@ This file documents my current understanding of the bluetooth messages passed be
 
 I would also like to give credit to [python-miramode](https://github.com/alexpilotti/python-miramode) which inspired me to buy a bluetooth sniffer and start investigations back in 2022 (I had to shelve investigations for a couple of years).
 
+NOTE: The device advertising data includes the following
+Name in the format "Mira <N86Sd>: <nickname>" where N86Sd is some kind of product identifier, and nickname is as described below.
+'ManufacturerData' which includes the first 6 bytes of the device serial number (in reverse byte order)
+
 ## Device Information Service
 The standard device information service can be queried for information below using either 16 bit or 128 bit UUIDs.
 
@@ -119,11 +123,11 @@ There is nothing in the notification to indicate which command type triggered it
 |Nickname|16|[ deviceNickname ]|
 |ClientDetails\*|20|[ clientName ]|
 |PresetDetails|24|[ presetSlot, [ targetTemperature ], TBC, durationSeconds, outletsEnabledBits, TBC, TBC, [ presetName ] ]|
-|TechnicalInformation|16|[ 0x00, valveType, 0x00, valveSoftwareVersion, 0x00, uiType, 0x00, uiSoftwareVersion, 0x00, 0x00, 0x00, 0x00, 0x00, TBC, 0x00, bluetoothSoftwareVersion ]|
+|TechnicalInformation|16|[ [ valveType ], [ valveSoftwareVersion ], [ uiType ], [ uiSoftwareVersion ], 0x00, 0x00, 0x00, 0x00, [ bluethoothType ], [ bluetoothSoftwareVersion ] ]|
 |UnknownTechnicalInformation|4|[ TBC, TBC, TBC, TBC ]
 
 \* NOTE: The ClientDetails notification does not include information about which clientSlot the name relates to.  It appears that an application needs to link the notification to the command it sent that requested details for a specific clientSlot. 
-
+NOTE: All the discovered TechnicalInformation fields have been assumed to be 2 bytes, although in practice the first byte of each has only sever been seen to be 0x00
 
 
 ### Payload data description / conversion information
