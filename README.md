@@ -11,8 +11,11 @@ This file documents my current understanding of the bluetooth messages passed be
 I would also like to give credit to [python-miramode](https://github.com/alexpilotti/python-miramode) which inspired me to buy a bluetooth sniffer and start investigations back in 2022 (I had to shelve investigations for a couple of years).
 
 NOTE: The device advertising data includes the following
-Name in the format "Mira <N86Sd>: <nickname>" where N86Sd is some kind of product identifier, and nickname is as described below.
+
+Name in the format "Mira **N86Sd**: **nickname**" where N86Sd is some kind of product identifier, and nickname is as described below.
+
 'ManufacturerData' which includes the first 6 bytes of the device serial number (in reverse byte order)
+
 
 ## Device Information Service
 The standard device information service can be queried for information below using either 16 bit or 128 bit UUIDs.
@@ -127,7 +130,7 @@ There is nothing in the notification to indicate which command type triggered it
 |UnknownTechnicalInformation|4|[ TBC, TBC, TBC, TBC ]
 
 \* NOTE: The ClientDetails notification does not include information about which clientSlot the name relates to.  It appears that an application needs to link the notification to the command it sent that requested details for a specific clientSlot. 
-NOTE: All the discovered TechnicalInformation fields have been assumed to be 2 bytes, although in practice the first byte of each has only sever been seen to be 0x00
+NOTE: All the discovered TechnicalInformation fields have been assumed to be 2 bytes, although in practice the first byte of each has only sever been seen to be 0x00.  It's also likely the the remaing bits are uiType/uiSoftware for the wired remote button.
 
 
 ### Payload data description / conversion information
@@ -147,3 +150,4 @@ NOTE: All the discovered TechnicalInformation fields have been assumed to be 2 b
 |deviceNickname|16|Nickname of device in utf-8 bytes, padded with trailing 0x00 to 16 bytes|
 |clientName|20|Name of the client application in utf-8 bytes padded with trailing 0x00 to 20 bytes|
 |presetName|16|Name of the preset in utf-8 bytes, padded with trailing 0x00 to 16 bytes|
+|uiType|2|Identifier for the main controller UI.  42=Dual Shower, 44=Shower+Bath ??=SingleOutletShower, ??=SingleOutletBathWith2Buttons|
