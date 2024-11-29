@@ -122,11 +122,11 @@ There is nothing in the notification to indicate which command type triggered it
 |DeviceSettings|4|[ TBC, wirelessRemoteButtobnOutletsEnabledBits, defaultPresetSlot, controllerSettingBits ]|
 |DeviceState|10|[ runningState, [ targetTemperature ], [ actualTemperature ], outlet1FlowRate, outlet2FlowRate, [ secondsRemainingPart ], successfulUpdateCommandCounter ]|
 |ControlsOperated|11|[ 0x01 (command made a change) or 0x80 (e.g. no change because controls already stopped), runningState, [ targetTemperature ], [ actualTemperature ], outlet1FlowRate, outlet2FlowRate, [ secondsRemainingPart ], successfulUpdateCommandCounter ]|
-|OutletSettings|11|[ outletFlag, TBC, TBC, TBC, minimumDurationSeconds, [ maximumTemperature ], [ minimumTemperature ], [ minMaxTemperatureLimit ] ]|
+|OutletSettings|11|[ outletFlag, outletFlag, TBC, maximumFlowRate, maximumDurationSeconds, [ maximumTemperature ], [ minimumTemperature ], [ minMaxTemperatureLimit ] ]|
 |Nickname|16|[ deviceNickname ]|
 |ClientDetails\*|20|[ clientName ]|
 |PresetDetails|24|[ presetSlot, [ targetTemperature ], TBC, durationSeconds, outletsEnabledBits, TBC, TBC, [ presetName ] ]|
-|TechnicalInformation|16|[ [ valveType ], [ valveSoftwareVersion ], [ uiType ], [ uiSoftwareVersion ], 0x00, 0x00, 0x00, 0x00, [ bluethoothType ], [ bluetoothSoftwareVersion ] ]|
+|TechnicalInformation|16|[ [ valveType ], [ valveSoftwareVersion ], [ uiType ], [ uiSoftwareVersion ], [ ui2Type ], [ ui2SoftwareVersion ], [ bluethoothType ], [ bluetoothSoftwareVersion ] ]|
 |UnknownTechnicalInformation|4|[ TBC, TBC, TBC, TBC ]
 
 \* NOTE: The ClientDetails notification does not include information about which clientSlot the name relates to.  It appears that an application needs to link the notification to the command it sent that requested details for a specific clientSlot. 
